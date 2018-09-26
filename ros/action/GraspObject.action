@@ -1,0 +1,9 @@
+#Goal definition
+string class_name  # Specify which object to grasp
+float32 timeout # max time to run for
+---
+# Define the result
+bool success
+---
+# Define a feedback message
+float64 error_current

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<launch>
+
+ <!-- small description about your node -->
+	<arg name="node_frequency" default="10.0"/>
+
+ 	<node pkg="mbot_visual_servoing_imagebased" type="vs_ibvs_node" name="mbot_visual_servoing_imagebased"
+ 	respawn="false" output="screen">
+		<param name="node_frequency" type="double" value="$(arg node_frequency)"/>
+		<rosparam command="load" file="$(find mbot_visual_servoing_imagebased)/ros/config/params.yaml"/>
+
+ 	</node>
+
+	<include file="$(find darknet_ros_py)/ros/launch/darknet_ros_py.launch" >
+		<arg name="debug" value="false" />
+		<arg name="darknet_mode" value="darknet_gpu" />
+		<arg name="input_topic" value="/gripper_camera/color/image_raw" />
+		<arg name="threshold" value="0.8" />
+		<arg name="only_best" value="true" />
+		<arg name="config_file" value="$(find darknet_ros_py)/ros/config/erl/erl_gripper.yaml" />
+		<arg name="node_name" value="gripper_darknet_ros"/>
+	</include>
+
+     <!--launch mbot cartesian controller -->
+	 <!--optimization cartesian controller arm + base (used for placing groceries)-->
+	<include file="$(find mbot_optimization_cartesian_controller)/ros/launch/optimization_cart_ctrler.launch" >
+		<arg name="base_x_weight" value="18" /> <!-- to prefer movement in this axis we set a low weight -->
+		<arg name="base_y_weight" value="18" /> <!-- set to 20 for not moving that much in y -->
+		<arg name="base_theta_weight" value="100" /> <!-- set to 100 to prevent base angular movement -->
+		<arg name="cmd_vel_topic" value="/cmd_vel_prio_low" /> <!-- allow overriding the base commands by joypad -->
+
+	</include>
+
+
+
+</launch>
+

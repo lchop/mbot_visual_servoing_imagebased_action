@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>mbot_visual_servoing_imagebased</name>
+  <version>0.0.1</version>
+  <description>ImageBased Visual Servoing for mbot</description>
+
+  <maintainer email="lchopot@ifma.fr">lchopot</maintainer>
+
+
+  
+  <license>TODO</license>
+
+
+  
+     <build_depend>roscpp</build_depend>
+     <build_depend>rospy</build_depend>
+     <build_depend>visp</build_depend>
+     <build_depend>rosconsole</build_depend>
+     <build_depend>visp_ros</build_depend>
+     <build_depend>darknet_ros_py</build_depend>
+     <build_depend>sensor_msgs</build_depend>
+     <build_depend>geometry_msgs</build_depend>
+     <build_depend>mbot_perception_msgs</build_depend>
+     <build_depend>tf</build_depend>
+     <build_depend>message_filters</build_depend>
+     <build_depend>message_generation</build_depend>
+     <build_depend>lrealsense2</build_depend>
+     <build_depend>actionlib</build_depend>
+     <build_depend>actionlib_msgs</build_depend>
+
+
+     <exec_depend>roscpp</exec_depend>
+     <exec_depend>rospy</exec_depend>
+     <exec_depend>visp</exec_depend>
+     <exec_depend>rosconsole</exec_depend>
+     <exec_depend>visp_ros</exec_depend>
+     <exec_depend>darknet_ros_py</exec_depend>
+     <exec_depend>sensor_msgs</exec_depend>
+     <exec_depend>geometry_msgs</exec_depend>
+     <exec_depend>mbot_perception_msgs</exec_depend>
+     <exec_depend>tf</exec_depend>
+     <exec_depend>message_filters</exec_depend>
+     <exec_depend>message_generation</exec_depend>
+     <exec_depend>message_runtime</exec_depend>
+     <exec_depend>lrealsense2</exec_depend>
+     <exec_depend>actionlib</exec_depend>
+     <exec_depend>actionlib_msgs</exec_depend>
+
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+
+  </export>
+</package>
+
