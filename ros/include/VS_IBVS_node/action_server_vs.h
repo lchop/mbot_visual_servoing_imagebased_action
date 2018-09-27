@@ -151,11 +151,11 @@ namespace VS_IBVS {
         vpServo task;
 
         vpImagePoint cog;
-        vpDot2 dot;
-        vpFeaturePoint p_blob;
-        vpFeaturePoint pd_blob;
-        vpFeatureDepth s_Z_blob;
-        vpFeatureDepth s_Zd_blob;
+        vpDot2 dot[4];
+        vpFeaturePoint p_blob[4];
+        vpFeaturePoint pd_blob[4];
+        vpFeatureDepth s_Z_blob[4];
+        vpFeatureDepth s_Zd_blob[4];
 
         vpFeaturePoint p;
         double x_center, y_center; // store current and update value of the image point features

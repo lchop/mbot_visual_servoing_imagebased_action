@@ -94,16 +94,19 @@ void IBVS_mbot::DisplayImage(std::string& text_to_print_on_image)
 
 void IBVS_mbot::InitTracking_Dot_BlobTracking()
 {
-    dot.setGraphics(true);
-    dot.setEllipsoidShapePrecision(0.9);  // to track a blob without any constraint on the shape
-    dot.setGrayLevelPrecision(0.9);  // to set the blob gray level bounds for Init_4Dot_BlobTrackingbinarisation
-    dot.setEllipsoidBadPointsPercentage(0.2); // to be accept 20% of bad inner and outside points with bad gray level
-    dot.setGrayLevelMin(0); // the gray lvl to be in the blob (0 here because of black points)
-    dot.setMaxSizeSearchDistancePrecision(0.2);
-    dot.initTracking(I);
-    cog = dot.getCog();
+    for (int i = 0; i < 4; i++)
+    {
+        dot[i].setGraphics(true);
+        dot[i].setEllipsoidShapePrecision(0.9);  // to track a blob without any constraint on the shape
+        dot[i].setGrayLevelPrecision(0.9);  // to set the blob gray level bounds for binarisation
+        dot[i].setEllipsoidBadPointsPercentage(0.2); // to be accept 20% of bad inner and outside points with bad gray level
+        dot[i].setGrayLevelMin(0); // the gray lvl to be in the blob (0 here because of black points)
+        dot[i].setMaxSizeSearchDistancePrecision(0.2);
+        dot[i].initTracking(I);
+        cog = dot[i].getCog();
 
-    vpDisplay::flush(I);
+        vpDisplay::flush(I);
+    }
 }
 
 void IBVS_mbot::CreateCurrentFeatures_Dot_BlobTracking()
@@ -111,53 +114,65 @@ void IBVS_mbot::CreateCurrentFeatures_Dot_BlobTracking()
     /* Creation of the current feature for Blob tracking detection */
 
     double coef = 1./95.; // At 1 m the blob has a surface of 95 (approximatively) (used to calculate depth)
-    double surface; // surface of the blob used to compute depth
-    double Z; // Depth vpDot2 feature
+    double surface[4]; // surface of the blob used to compute depth
+    double Z[4]; // Depth vpDot2 feature
 
-    //Create vpFeature for s = (x,y)
-    vpFeatureBuilder::create(p_blob, cam, dot.getCog());
-    //Surface of the blob estimated from the image moment m00 and converted in meters
-    surface = 1./sqrt(dot.m00/(cam.get_px()*cam.get_py()));
-    Z = coef * surface; // Calculating the depth from each current feature point
-    p_blob.set_Z(Z);
-    //Create VpFeatureDepth, one more parameter for one point, now s = (x,y,z)
-    s_Z_blob.buildFrom(p_blob.get_x(), p_blob.get_y(), Z, 0);
+    for (int i=0; i < 4; i++){
+        vpFeatureBuilder::create(p_blob[i], cam, dot[i].getCog());
+        surface[i] = 1./sqrt(dot[i].m00/(cam.get_px()*cam.get_py())); // Surface of the blob estimated from the image moment m00
+        // and converted in meters
+        Z[i] = coef * surface[i]; // Calculating the depth from each current feature point
+        p_blob[i].set_Z(Z[i]);
+
+        s_Z_blob[i].buildFrom(p_blob[i].get_x(), p_blob[i].get_y(), Z[i], 0);
+    }
 }
 
 void IBVS_mbot::CreateDesiredFeatures_Dot_BlobTracking()
 {
     /* Creation of the desired feature for Blob tracking detection */
 
-    //Create a point in the image plane in m.
-    vpPoint point;
-    point.set_x(0);
-    point.set_y(0);
+    vpImagePoint point_image[4];
+    vpFeaturePoint pd[4];
+    vpFeatureDepth s_Zd[2];
+    double Zd[4];
 
-    //Create vpFeature for s* = (x,y)
-    vpFeatureBuilder::create(pd_blob, point);
-    pd_blob.set_Z(depth_desired);
-    //Create VpFeatureDepth, one more parameter for one point, now s* = (x,y,z)
-    s_Zd_blob.buildFrom(pd_blob.get_x(), pd_blob.get_y(), depth_desired, 0);
+    point_image[0].set_uv(456, 130);
+    point_image[1].set_uv(324, 348);
+    point_image[2].set_uv(446, 508);
+    point_image[3].set_uv(329, 722);
+
+    for (int i=0; i < 4; i++)
+    {
+        vpFeatureBuilder::create(pd_blob[i], cam, point_image[i]);
+        Zd[i] = 0.11;
+        pd_blob[i].set_Z(Zd[0]);
+
+        s_Zd_blob[i].buildFrom(pd_blob[i].get_x(), pd_blob[i].get_y(), Zd[i], 0);
+    }
 }
 
 void IBVS_mbot::UpdateCurrentFeatures_Dot_Blob_Tracking()
 {
     double coef = 1./95.; // At 1 m the blob has a surface of 95 (approximatively) (used to calculate depth)
     double surface; // surface of the blob used to compute depth
-    double Z; // Depth for each vpDot2 features
+    double Z[4]; // Depth for each vpDot2 features
 
-    //Track blob
-    dot.track(I); //track the blob in I
-    cog = dot.getCog(); // get center of gravity of blob
+    for (int i=0 ; i < 4 ; i++) {
+        // Achieve the tracking of the dot in the image
+        dot[i].track(I) ;
+        vpFeatureBuilder::create(p_blob[i], cam, dot[i].getCog());// Update the current features
+        //Update the depth of the feature
+        surface = 1. / sqrt(dot[i].m00 / (cam.get_px() * cam.get_py()));
+        Z[i] = coef * surface;
+        p_blob[i].set_Z(Z[i]);
+        //Update VpFeatureDepth
+        s_Z_blob[i].buildFrom(p_blob[i].get_x(), p_blob[i].get_y(), Z[i], log(Z[i]/depth_desired)) ;
+    }
+
 
     //Update vpFeature s = (x,y)
-    vpFeatureBuilder::create(p_blob, cam, dot);// Update the current features
-    //Update the depth of the feature
-    surface = 1. / sqrt(dot.m00 / (cam.get_px() * cam.get_py()));
-    Z = coef * surface;
-    p_blob.set_Z(Z);
-    //Update VpFeatureDepth
-    s_Z_blob.buildFrom(p_blob.get_x(), p_blob.get_y(), Z, log(Z/depth_desired)) ;
+
 }
 
 void IBVS_mbot::Init_Dot_BlobTracking()
@@ -428,9 +443,13 @@ void IBVS_mbot::AddFeaturesToTask()
 
     if (Blob_tracking)
     {
-        task.addFeature(p_blob, pd_blob); // Add the features to the visual task
-        task.addFeature(s_Z_blob, s_Zd_blob); // Add depth features to the visual task
-        task.print(); //Print the task fully initialized
+        for (int i = 0; i<4; i++)
+        {
+            task.addFeature(p_blob[i], pd_blob[i]); // Add the features to the visual task
+            task.addFeature(s_Z_blob[i], s_Zd_blob[i]); // Add depth features to the visual task
+            task.print(); //Print the task fully initialized
+        }
+
     }
     else if (Yolo_Center_ROI)
     {

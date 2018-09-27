@@ -8,25 +8,25 @@
 	<!-- intel camera -->
 	<!--include file="$(find realsense2_camera)/launch/rs_aligned_depth.launch"/-->
 
-	<group ns="mbot_perception">
-		<include file="$(find darknet_ros_py)/ros/launch/darknet_ros_py.launch" >
-			<arg name="debug" value="false" />
-			<arg name="darknet_mode" value="darknet_gpu" />
-			<arg name="input_topic" value="$(arg camera)/color/image_raw" />
-			<arg name="threshold" value="0.6" />
-			<arg name="only_best" value="false" />
-			<arg name="config_file" value="$(find darknet_ros_py)/ros/config/erl/erl_gripper.yaml" />
-			<arg name="node_name" value="gripper_detector"/>
-		</include>
-	</group>
+	<!--<group ns="mbot_perception">-->
+		<!--<include file="$(find darknet_ros_py)/ros/launch/darknet_ros_py.launch" >-->
+			<!--<arg name="debug" value="false" />-->
+			<!--<arg name="darknet_mode" value="darknet_gpu" />-->
+			<!--<arg name="input_topic" value="$(arg camera)/color/image_raw" />-->
+			<!--<arg name="threshold" value="0.6" />-->
+			<!--<arg name="only_best" value="false" />-->
+			<!--<arg name="config_file" value="$(find darknet_ros_py)/ros/config/erl/erl_gripper.yaml" />-->
+			<!--<arg name="node_name" value="gripper_detector"/>-->
+		<!--</include>-->
+	<!--</group>-->
 
 	<group ns="mbot_manipulation">
 	 	<node pkg="mbot_visual_servoing_imagebased" type="action_server_vs" name="visual_servoing"
 	 	respawn="false" output="screen">
 			<rosparam command="load" file="$(find mbot_visual_servoing_imagebased)/ros/config/params.yaml"/>
 			<param name="node_frequency" type="double" value="$(arg node_frequency)"/>
-			<param name="CamInfo_Topic" type="string" value="$(arg camera)/color/camera_info"/>
-			<param name="RgbImage_Topic" type="string" value="$(arg camera)/color/image_raw"/>
+			<param name="CamInfo_Topic" type="string" value="$(arg camera)/camera_info"/>
+			<param name="RgbImage_Topic" type="string" value="$(arg camera)/image_raw"/>
 			<param name="DepthImage_Topic" type="string" value="$(arg camera)/aligned_depth_to_color/image_raw"/>
 			<param name="DetectionResultsYolo_Topic" type="string" value="/mbot_perception/gripper_detector/detections"/>
 			<param name="MASTER_URI" type="string" value="$(env ROS_MASTER_URI)"/>
